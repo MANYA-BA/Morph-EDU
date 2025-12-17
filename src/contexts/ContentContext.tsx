@@ -4,6 +4,7 @@ import type { TransformedContent } from '@/types/rendering';
 import type { ProfileId } from '@/types/accessibility';
 import { normalizeContent } from '@/lib/normalizer';
 import { transformContent } from '@/lib/transformers';
+import { interpretContent, interpretedToRawText, type InterpretedContent } from '@/lib/interpretation';
 
 // ============================================
 // CONTEXT TYPE
@@ -13,6 +14,7 @@ interface ContentContextType {
   uploadState: UploadState;
   normalizedContent: NormalizedContent | null;
   transformedContent: TransformedContent | null;
+  interpretedContent: InterpretedContent | null;
   
   // Actions
   processContent: (rawContent: RawExtractedContent) => Promise<void>;
@@ -41,16 +43,55 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [uploadState, setUploadState] = useState<UploadState>(initialUploadState);
   const [normalizedContent, setNormalizedContent] = useState<NormalizedContent | null>(null);
   const [transformedContent, setTransformedContent] = useState<TransformedContent | null>(null);
+  const [interpretedContent, setInterpretedContent] = useState<InterpretedContent | null>(null);
   
   const processContent = useCallback(async (rawContent: RawExtractedContent) => {
     try {
-      // Start with extracting status
-      setUploadState((prev) => ({ ...prev, status: 'extracting', progress: 30 }));
+      // Step 1: Extraction complete, start AI interpretation
+      setUploadState((prev) => ({ ...prev, status: 'interpreting', progress: 30 }));
       
-      // Move to normalizing
-      setUploadState((prev) => ({ ...prev, status: 'normalizing', progress: 60 }));
+      let interpreted: InterpretedContent;
+      let textForNormalization: string;
       
-      const normalized = await normalizeContent(rawContent);
+      try {
+        // Call AI to interpret the content
+        interpreted = await interpretContent(rawContent);
+        setInterpretedContent(interpreted);
+        
+        // Convert AI interpretation to structured text
+        textForNormalization = interpretedToRawText(interpreted);
+        
+        console.log('AI interpretation complete:', interpreted.topic);
+      } catch (aiError) {
+        // If AI fails, log but continue with raw text
+        console.warn('AI interpretation failed, using raw extraction:', aiError);
+        textForNormalization = rawContent.rawText;
+        interpreted = {
+          topic: 'Content Analysis',
+          overview: 'AI interpretation unavailable. Showing extracted content.',
+          contentType: 'text',
+          sections: []
+        };
+        setInterpretedContent(interpreted);
+      }
+      
+      // Step 2: Normalize the interpreted content
+      setUploadState((prev) => ({ ...prev, status: 'normalizing', progress: 70 }));
+      
+      const normalizedRaw: RawExtractedContent = {
+        ...rawContent,
+        rawText: textForNormalization
+      };
+      
+      const normalized = await normalizeContent(normalizedRaw);
+      
+      // Add interpretation metadata to normalized content
+      normalized.interpretation = {
+        topic: interpreted.topic,
+        contentType: interpreted.contentType,
+        spatialDescription: interpreted.spatialDescription
+      };
+      
       setNormalizedContent(normalized);
       
       setUploadState((prev) => ({
@@ -60,6 +101,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
         normalizedContent: normalized,
       }));
     } catch (error) {
+      console.error('Content processing error:', error);
       setUploadState((prev) => ({
         ...prev,
         status: 'error',
@@ -86,6 +128,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     setUploadState(initialUploadState);
     setNormalizedContent(null);
     setTransformedContent(null);
+    setInterpretedContent(null);
   }, []);
   
   const setUploadProgress = useCallback((progress: number) => {
@@ -100,6 +143,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     uploadState,
     normalizedContent,
     transformedContent,
+    interpretedContent,
     processContent,
     transformForProfiles,
     resetContent,

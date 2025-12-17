@@ -35,6 +35,12 @@ export interface NormalizedContent {
   outline: string[];
   sourceType: ContentSourceType;
   createdAt: Date;
+  // New: AI interpretation metadata
+  interpretation?: {
+    topic: string;
+    contentType: string;
+    spatialDescription?: string;
+  };
 }
 
 // ============================================
@@ -55,7 +61,7 @@ export interface RawExtractedContent {
 // UPLOAD STATE
 // ============================================
 
-export type UploadStatus = 'idle' | 'uploading' | 'extracting' | 'normalizing' | 'complete' | 'error';
+export type UploadStatus = 'idle' | 'uploading' | 'extracting' | 'interpreting' | 'normalizing' | 'complete' | 'error';
 
 export interface UploadState {
   status: UploadStatus;

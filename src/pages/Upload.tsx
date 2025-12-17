@@ -139,7 +139,18 @@ export default function Upload() {
   
   const isProcessing = uploadState.status === 'uploading' || 
                        uploadState.status === 'extracting' || 
+                       uploadState.status === 'interpreting' ||
                        uploadState.status === 'normalizing';
+  
+  // Status message for UI
+  const getStatusMessage = () => {
+    switch (uploadState.status) {
+      case 'extracting': return extractionStatus || 'Extracting content...';
+      case 'interpreting': return 'AI is understanding your content...';
+      case 'normalizing': return 'Organizing content structure...';
+      default: return extractionStatus || 'Processing...';
+    }
+  };
   
   return (
     <Layout>
@@ -217,7 +228,7 @@ export default function Upload() {
                 <div className="mt-4 space-y-2">
                   <Progress value={uploadState.progress} />
                   <p className="text-sm text-center text-muted-foreground">
-                    {extractionStatus || 'Processing...'}
+                    {getStatusMessage()}
                   </p>
                 </div>
               )}
