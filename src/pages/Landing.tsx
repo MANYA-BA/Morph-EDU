@@ -50,23 +50,20 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="container py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h1 className="animate-fade-up">
+          <h1 className="animate-fade-up text-center font-bold font-sans text-2xl">
             One content.{' '}
             <span className="text-primary">Infinite access.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground readable-width mx-auto animate-fade-up" style={{
           animationDelay: '0.1s'
         }}>
-            MorphEDU transforms any educational content into personalized, 
-            accessible learning experiences for every type of learner.
-          </p>
-          <div style={{
+        </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up" style={{
           animationDelay: '0.2s'
-        }} className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up font-bold font-sans text-5xl">
+        }}>
             <Button size="lg" asChild className="touch-target-min">
               <Link to="/upload">
-                ​Many ways to learn.
-        
+                Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -128,7 +125,7 @@ export default function Landing() {
       {/* CTA */}
       <section className="border-t border-border bg-primary/5 py-16 md:py-24">
         <div className="container text-center">
-          <h2 className="mb-4 border-solid">Ready to Transform Learning?</h2>
+          <h2 className="mb-4">Ready to Transform Learning?</h2>
           <p className="text-muted-foreground mb-8 readable-width mx-auto">
             Upload your first piece of content and experience accessible education.
           </p>
