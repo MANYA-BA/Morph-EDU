@@ -127,7 +127,7 @@ export default function Landing() {
       {/* CTA */}
       <section className="border-t border-border bg-primary/5 py-16 md:py-24">
         <div className="container text-center">
-          <h2 className="mb-4">Ready to Transform Learning?</h2>
+          <h2 className="mb-4 border-solid">Ready to Transform Learning?</h2>
           <p className="text-muted-foreground mb-8 readable-width mx-auto">
             Upload your first piece of content and experience accessible education.
           </p>
