@@ -62,7 +62,7 @@ export default function Landing() {
           </p>
           <div style={{
           animationDelay: '0.2s'
-        }} className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up text-5xl">
+        }} className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up text-5xl font-bold">
             <Button size="lg" asChild className="touch-target-min">
               <Link to="/upload">
                 ​Many ways to learn.    
