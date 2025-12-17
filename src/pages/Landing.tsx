@@ -50,20 +50,22 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="container py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h1 className="animate-fade-up text-center font-bold font-sans text-2xl">
+          <h1 className="animate-fade-up">
             One content.{' '}
             <span className="text-primary">Infinite access.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground readable-width mx-auto animate-fade-up" style={{
           animationDelay: '0.1s'
         }}>
-        </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up" style={{
+            MorphEDU transforms any educational content into personalized, 
+            accessible learning experiences for every type of learner.
+          </p>
+          <div style={{
           animationDelay: '0.2s'
-        }}>
+        }} className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up text-5xl">
             <Button size="lg" asChild className="touch-target-min">
               <Link to="/upload">
-                Get Started
+                ​Many ways to learn.    
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
