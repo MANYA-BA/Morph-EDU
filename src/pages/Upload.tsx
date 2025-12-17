@@ -1,27 +1,29 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload as UploadIcon, FileText, Image, FileAudio, X, Loader2 } from 'lucide-react';
+import { Upload as UploadIcon, FileText, Image, FileAudio, X, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Layout } from '@/components/layout/Layout';
 import { useContent } from '@/contexts/ContentContext';
 import { useToast } from '@/hooks/use-toast';
+import { extractContent } from '@/lib/extraction';
 import type { ContentSourceType, RawExtractedContent } from '@/types/content';
 
 const acceptedFormats = [
   { type: 'pdf' as ContentSourceType, label: 'PDF', icon: FileText, accept: '.pdf' },
-  { type: 'image' as ContentSourceType, label: 'Image', icon: Image, accept: '.png,.jpg,.jpeg,.webp' },
+  { type: 'image' as ContentSourceType, label: 'Image', icon: Image, accept: '.png,.jpg,.jpeg,.webp,.gif,.bmp' },
   { type: 'text' as ContentSourceType, label: 'Text', icon: FileText, accept: '.txt,.md' },
-  { type: 'transcript' as ContentSourceType, label: 'Transcript', icon: FileAudio, accept: '.vtt,.srt,.txt' },
+  { type: 'transcript' as ContentSourceType, label: 'Transcript', icon: FileAudio, accept: '.vtt,.srt' },
 ];
 
 export default function Upload() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { uploadState, processContent, resetContent } = useContent();
+  const { uploadState, processContent, resetContent, setUploadProgress, setUploadError } = useContent();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [extractionStatus, setExtractionStatus] = useState<string>('');
   
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -33,55 +35,85 @@ export default function Upload() {
     }
   }, []);
   
-  const detectFileType = (file: File): ContentSourceType => {
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    if (ext === 'pdf') return 'pdf';
-    if (['png', 'jpg', 'jpeg', 'webp'].includes(ext || '')) return 'image';
-    if (['vtt', 'srt'].includes(ext || '')) return 'transcript';
-    return 'text';
-  };
-  
   const handleFile = useCallback(async (file: File) => {
     setSelectedFile(file);
+    setExtractionStatus('Starting extraction...');
+    setUploadProgress(5);
     
-    // For now, we'll extract text content directly
-    // In production, this would use OCR for images, PDF parsing, etc.
     try {
-      let rawText = '';
+      // REAL CONTENT EXTRACTION - not metadata!
+      const extractionResult = await extractContent(file, {
+        onProgress: (progress, status) => {
+          setUploadProgress(progress);
+          setExtractionStatus(status);
+        },
+      });
       
-      if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-        rawText = await file.text();
-      } else {
-        // Placeholder for PDF/image processing
-        rawText = `[Content extracted from: ${file.name}]\n\nThis is placeholder content. In production, this would be extracted using OCR or PDF parsing.\n\nThe file you uploaded was ${file.size} bytes.`;
+      // FAIL LOUDLY if extraction fails
+      if (!extractionResult.success) {
+        const errorMessage = extractionResult.error || 'Failed to extract content from file';
+        setUploadError(errorMessage);
+        toast({
+          title: 'Content extraction failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return;
       }
       
+      // VERIFY we have actual content, not metadata
+      if (!extractionResult.text || extractionResult.text.trim().length < 10) {
+        const errorMessage = 'No readable content could be extracted from this file. Please try a different file.';
+        setUploadError(errorMessage);
+        toast({
+          title: 'No content found',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Show warning if OCR confidence is low
+      if (extractionResult.warning) {
+        toast({
+          title: 'Content extracted with warnings',
+          description: extractionResult.warning,
+          variant: 'default',
+        });
+      }
+      
+      setExtractionStatus('Processing content...');
+      
+      // Create raw content object with REAL extracted text
       const rawContent: RawExtractedContent = {
-        sourceType: detectFileType(file),
-        rawText,
+        sourceType: extractionResult.sourceType,
+        rawText: extractionResult.text,
         fileName: file.name,
         fileSize: file.size,
         extractedAt: new Date(),
       };
       
+      // Process through semantic normalization pipeline
       await processContent(rawContent);
       
       toast({
-        title: 'Content processed',
-        description: 'Your content has been normalized and is ready for transformation.',
+        title: 'Content processed successfully',
+        description: `Extracted ${extractionResult.text.length} characters from ${file.name}`,
       });
       
       // Navigate to profiles to select accessibility needs
       setTimeout(() => navigate('/profiles'), 1500);
       
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process file';
+      setUploadError(errorMessage);
       toast({
         title: 'Processing failed',
-        description: error instanceof Error ? error.message : 'Failed to process file',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
-  }, [processContent, toast, navigate]);
+  }, [processContent, toast, navigate, setUploadProgress, setUploadError]);
   
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -101,6 +133,7 @@ export default function Upload() {
   
   const handleClear = useCallback(() => {
     setSelectedFile(null);
+    setExtractionStatus('');
     resetContent();
   }, [resetContent]);
   
@@ -184,9 +217,7 @@ export default function Upload() {
                 <div className="mt-4 space-y-2">
                   <Progress value={uploadState.progress} />
                   <p className="text-sm text-center text-muted-foreground">
-                    {uploadState.status === 'uploading' && 'Uploading...'}
-                    {uploadState.status === 'extracting' && 'Extracting content...'}
-                    {uploadState.status === 'normalizing' && 'Normalizing content structure...'}
+                    {extractionStatus || 'Processing...'}
                   </p>
                 </div>
               )}

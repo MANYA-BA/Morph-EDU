@@ -44,7 +44,11 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   
   const processContent = useCallback(async (rawContent: RawExtractedContent) => {
     try {
-      setUploadState((prev) => ({ ...prev, status: 'normalizing', progress: 50 }));
+      // Start with extracting status
+      setUploadState((prev) => ({ ...prev, status: 'extracting', progress: 30 }));
+      
+      // Move to normalizing
+      setUploadState((prev) => ({ ...prev, status: 'normalizing', progress: 60 }));
       
       const normalized = await normalizeContent(rawContent);
       setNormalizedContent(normalized);
