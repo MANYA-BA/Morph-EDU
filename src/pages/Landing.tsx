@@ -1,141 +1,123 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Upload, Users, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, Upload, Sliders, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Layout } from '@/components/layout/Layout';
-const features = [{
-  icon: Upload,
-  title: 'Upload Any Content',
-  description: 'PDF, images, text, or transcripts — we accept all educational formats.'
-}, {
-  icon: Users,
-  title: 'Choose Your Profile',
-  description: 'Select accessibility needs: visual, hearing, cognitive, or motor.'
-}, {
-  icon: Sparkles,
-  title: 'AI Transforms Content',
-  description: 'Our AI restructures content specifically for how you learn best.'
-}, {
-  icon: BookOpen,
-  title: 'Learn Your Way',
-  description: 'Experience the same knowledge in a format designed for you.'
-}];
-const profiles = [{
-  id: 'blind',
-  name: 'Blind / Low Vision',
-  color: 'hsl(270, 70%, 60%)'
-}, {
-  id: 'deaf',
-  name: 'Deaf / Hard of Hearing',
-  color: 'hsl(210, 70%, 60%)'
-}, {
-  id: 'dyslexia',
-  name: 'Dyslexia',
-  color: 'hsl(150, 70%, 45%)'
-}, {
-  id: 'autism',
-  name: 'Autism Spectrum',
-  color: 'hsl(45, 70%, 55%)'
-}, {
-  id: 'adhd',
-  name: 'ADHD',
-  color: 'hsl(0, 70%, 60%)'
-}, {
-  id: 'motor',
-  name: 'Motor Disabilities',
-  color: 'hsl(180, 50%, 45%)'
-}];
+
+const steps = [
+  {
+    icon: Upload,
+    step: '1',
+    title: 'Upload content',
+    description: 'PDF, images, text, or transcripts — any educational format.',
+  },
+  {
+    icon: Sliders,
+    step: '2',
+    title: 'Choose accessibility profile',
+    description: 'Select the learning experience that works best for you.',
+  },
+  {
+    icon: BookOpen,
+    step: '3',
+    title: 'Learn your way',
+    description: 'Experience the content in a format designed for your needs.',
+  },
+];
+
+const profiles = [
+  { id: 'blind', name: 'Blind / Low Vision' },
+  { id: 'deaf', name: 'Deaf / Hard of Hearing' },
+  { id: 'dyslexia', name: 'Dyslexia' },
+  { id: 'autism', name: 'Autism Spectrum' },
+  { id: 'adhd', name: 'ADHD' },
+  { id: 'motor', name: 'Motor Disabilities' },
+];
+
 export default function Landing() {
-  return <Layout>
+  return (
+    <Layout>
       {/* Hero Section */}
-      <section className="container py-16 md:py-24">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h1 className="animate-fade-up text-center font-bold font-sans text-5xl">
-            One content.{' '}
-            <span className="text-primary">Infinite access.</span>
+      <section className="container py-24 md:py-32">
+        <div className="max-w-2xl mx-auto text-center space-y-6">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
+            One Content. Infinite Access.
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground readable-width mx-auto animate-fade-up" style={{
-          animationDelay: '0.1s'
-        }}>
-        </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-up" style={{
-          animationDelay: '0.2s'
-        }}>
-            <Button size="lg" asChild className="touch-target-min">
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            Upload any educational content and experience it in formats designed for different learning needs.
+          </p>
+          <div className="pt-4">
+            <Button size="lg" asChild>
               <Link to="/upload">
-                Get Started
+                Upload your content
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="touch-target-min">
-              <Link to="/profiles">
-                Explore Profiles
-              </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="border-t border-border py-20 md:py-24">
+        <div className="container">
+          <h2 className="text-2xl font-semibold text-center mb-16">How it works</h2>
+          <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+            {steps.map((item) => (
+              <div key={item.step} className="text-center space-y-4">
+                <div className="w-12 h-12 rounded-full border border-border flex items-center justify-center mx-auto">
+                  <item.icon className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium text-foreground">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Supported Profiles */}
+      <section className="border-t border-border py-20 md:py-24">
+        <div className="container">
+          <div className="max-w-2xl mx-auto text-center space-y-6">
+            <h2 className="text-2xl font-semibold">Designed for everyone</h2>
+            <p className="text-muted-foreground">
+              Six accessibility profiles, each with thoughtful adaptations for how you learn.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 mt-12 max-w-3xl mx-auto">
+            {profiles.map((profile) => (
+              <span
+                key={profile.id}
+                className="px-4 py-2 text-sm border border-border rounded-full text-muted-foreground"
+              >
+                {profile.name}
+              </span>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Button variant="outline" asChild>
+              <Link to="/profiles">Learn more about profiles</Link>
             </Button>
           </div>
         </div>
       </section>
-      
-      {/* How It Works */}
-      <section className="border-t border-border bg-secondary/30 py-16 md:py-24">
-        <div className="container">
-          <h2 className="text-center mb-12">How It Works</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => <Card key={feature.title} className="border-0 bg-background animate-fade-up" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>)}
-          </div>
-        </div>
-      </section>
-      
-      {/* Supported Profiles */}
-      <section className="container py-16 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="mb-4">Designed for Everyone</h2>
-          <p className="text-muted-foreground readable-width mx-auto">
-            Six comprehensive accessibility profiles, each with unique adaptations. 
-            Combine multiple profiles for a personalized experience.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {profiles.map((profile, index) => <div key={profile.id} className="p-4 rounded-lg border border-border text-center hover:border-primary/50 transition-colors animate-fade-up" style={{
-          animationDelay: `${index * 0.05}s`
-        }}>
-              <div className="w-4 h-4 rounded-full mx-auto mb-3" style={{
-            backgroundColor: profile.color
-          }} aria-hidden="true" />
-              <span className="text-sm font-medium">{profile.name}</span>
-            </div>)}
-        </div>
-        <div className="text-center mt-8">
-          <Button variant="outline" asChild>
-            <Link to="/profiles">Learn More About Profiles</Link>
-          </Button>
-        </div>
-      </section>
-      
+
       {/* CTA */}
-      <section className="border-t border-border bg-primary/5 py-16 md:py-24">
+      <section className="border-t border-border py-20 md:py-24">
         <div className="container text-center">
-          <h2 className="mb-4">Ready to Transform Learning?</h2>
-          <p className="text-muted-foreground mb-8 readable-width mx-auto">
-            Upload your first piece of content and experience accessible education.
+          <h2 className="text-2xl font-semibold mb-4">Ready to get started?</h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+            Upload your first piece of content and experience accessible learning.
           </p>
-          <Button size="lg" asChild className="touch-target-min">
+          <Button size="lg" asChild>
             <Link to="/upload">
-              Start Now
+              Start now
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
       </section>
-    </Layout>;
+    </Layout>
+  );
 }
