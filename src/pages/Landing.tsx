@@ -50,7 +50,7 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="container py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h1 className="animate-fade-up text-center font-bold font-sans text-2xl">
+          <h1 className="animate-fade-up text-center font-bold font-sans text-5xl">
             One content.{' '}
             <span className="text-primary">Infinite access.</span>
           </h1>
